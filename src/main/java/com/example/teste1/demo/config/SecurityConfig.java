@@ -2,6 +2,7 @@ package com.example.teste1.demo.config;
 
 import com.example.teste1.demo.auth.JwtAuthenticationFilter;
 import com.example.teste1.demo.service.UserService;
+import com.example.teste1.demo.auth.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,14 +18,20 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 /**
  * Configuração de segurança simples: JWT, rotas públicas e protegidas.
  */
+
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final JwtAuthenticationFilter jwtAuthFilter;
+    private final JwtService jwtService;
     private final UserService userService;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public JwtAuthenticationFilter jwtAuthFilter() {
+        return new JwtAuthenticationFilter(jwtService, userService);
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthFilter) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
